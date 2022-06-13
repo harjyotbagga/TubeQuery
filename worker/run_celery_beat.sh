@@ -1,0 +1,1 @@
+celery -A celery_beat beat -l info

@@ -1,0 +1,6 @@
+venv/
+api_keys.txt
+__pycache__
+.env
+
+celerybeat-schedule
