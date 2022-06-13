@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 async def init_crons(sender):
     print(chalk.green("init_crons: STARTED"))
     tags = await service.get_all_tags()
-    every_seconds = 5
+    every_seconds = 10
 
     sender.add_periodic_task(
         every_seconds,

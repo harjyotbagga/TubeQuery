@@ -12,23 +12,15 @@ import service
 # Called via dynamic function call, from celery beat
 @app.task(name="fetch_from_yt_api")
 def fetch_from_yt_api(tags, pageToken=None):
-    # print(tags, pageToken)
-    # if pageToken == "abc":
-    #     time.sleep(3)
-    # else:
-    #     fetch_from_yt_api.delay(tags, "abc")
-    # print("END " + str(pageToken))
-    key = utils.get_active_api_key()
-    if key is None:
-        print("No Active API keys available")
+    try:
+        key = service.get_active_api_key()
+    except Exception as e:
+        print("fetch_from_yt_api: ERROR: " + str(e))
         return
+
     url = "https://youtube.googleapis.com/youtube/v3/search"
-    # publishAfterTime = datetime.datetime.now()
-    # publishBeforeTime = publishAfterTime + datetime.timedelta(seconds=10)
-    
-    # DEV: Delete Later
-    publishAfterTime = datetime.datetime(2022,6,13,12,0,0)
-    publishBeforeTime = datetime.datetime.now()
+    publishAfterTime = datetime.datetime.now()
+    publishBeforeTime = publishAfterTime + datetime.timedelta(seconds=10)
     
     querystring = {
         "part":"snippet",
@@ -57,7 +49,6 @@ def fetch_from_yt_api(tags, pageToken=None):
     video_items = resp.get('items')
     write_to_db.delay(video_items)
 
-    
 
 # Called via dynamic function call, from celery beat
 @app.task(name="write_to_db")
