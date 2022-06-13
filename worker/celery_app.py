@@ -1,8 +1,5 @@
 import os
-import asyncio
 from celery import Celery
-from simple_chalk import chalk
-import service
 
 BROKER_LINK = os.environ.get("BROKER_LINK", "amqp://guest@localhost//")
 

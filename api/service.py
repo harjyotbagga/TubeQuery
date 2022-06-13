@@ -1,12 +1,6 @@
 from datetime import datetime
-from email.policy import default
-from enum import unique
-from unicodedata import name
-
-import pymongo
 from schemas import *
 from database import *
-from utils import timestamp_to_string, string_to_timestamp
 from utils import *
 
 def query_videos(filters: dict, optionals: dict = {}):

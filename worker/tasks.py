@@ -1,9 +1,5 @@
-import queue
 import requests
-import json
 import datetime
-import utils
-import time
 from celery_app import app
 import service
 

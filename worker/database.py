@@ -1,7 +1,5 @@
 import os
 import logging
-import datetime
-from sqlite3 import connect
 from pymongo import MongoClient
 
 logger = logging.getLogger("database")
