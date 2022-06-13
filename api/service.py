@@ -1,15 +1,22 @@
 from datetime import datetime
 from schemas import *
-from ops import *
+from database import *
 from utils import timestamp_to_string, string_to_timestamp
 from utils import *
 
 def query_videos(filters: dict, optionals: dict = {}):
-    db_instance = database.get_mongo_client()["TubeQuery"]
+    db_instance = get_mongo_client()["TubeQuery"]
     video_collection = db_instance["VideoItems"]
     try:
         total_counts = video_collection.count_documents(filters)
-        video_items = video_collection.find(filters).sort("published_at", -1).limit(optionals.get("limit", 10)).skip(optionals.get("skip", 0))
+        project = {
+            "title": 1,
+            "description": 1,
+            "published_at": 1,
+            "channel_title": 1,
+            "thumbnail_url": 1,
+        }
+        video_items = video_collection.find(filters, project).sort("published_at", -1).limit(optionals.get("limit", 10)).skip(optionals.get("skip", 0))
         video_items = RemoveObjectIdFromMongoObjectArray(video_items)
         if (optionals.get("page", 1) * optionals.get("limit", 10)) >= total_counts:
             next_page = None
