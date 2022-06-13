@@ -27,7 +27,7 @@ def add_videos_to_db(video_items):
             "video_id": video_item["id"]["videoId"],
             "channel_id": video_item["snippet"]["channelId"],
             "channel_title": video_item["snippet"]["channelTitle"],
-            "published_at": video_item["snippet"]["publishedAt"],
+            "published_at": utils.string_to_timestamp(video_item["snippet"]["publishedAt"]),
             "title": video_item["snippet"]["title"],
             "description": video_item["snippet"]["description"],
             "thumbnail_url": video_item["snippet"]["thumbnails"]["default"]["url"],

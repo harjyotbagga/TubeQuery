@@ -43,7 +43,6 @@ def fetch_from_yt_api(tags, pageToken=None):
     if pageToken is not None:
         querystring["pageToken"] = pageToken
 
-    print("REQUEST: " + str(querystring.get("pageToken", None)))
     response = requests.request("GET", url, params=querystring)
     if response.status_code != 200:
         print("Error: " + str(response.status_code))
@@ -53,8 +52,6 @@ def fetch_from_yt_api(tags, pageToken=None):
     if resp.get('pageInfo', {}).get('totalResults') == 0:
         print("No results found")
         return
-    print(resp)
-    print("RESPONSE: " + str(resp.get("nextPageToken", None)))
     if resp.get('nextPageToken') is not None:
         fetch_from_yt_api.delay(tags, resp.get('nextPageToken'))
     video_items = resp.get('items')

@@ -1,8 +1,10 @@
 import heapq as hq
 from models import YT_API_Key
+import datetime
+import time
 
 Active_API_Keys = []
-
+TIMESTAMP_ISO_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 def load_api_keys():
     global Active_API_Keys
@@ -23,3 +25,10 @@ def get_active_api_key():
     key.request_used()
     hq.heapify(Active_API_Keys)
     return key.get_key()
+
+
+def timestamp_to_string(timestamp):
+    return timestamp.strftime(TIMESTAMP_ISO_FORMAT)
+
+def string_to_timestamp(string):
+    return datetime.datetime.strptime(string, TIMESTAMP_ISO_FORMAT)
