@@ -17,10 +17,16 @@ async def search_videos(request: Request,
     published_before: Union[str, None] = None,
     published_after: Union[str, None] = None,
     channel_title: Union[str, None] = None,
-    page: Union[int, None] = None,
-    per_page: Union[int, None] = None,
+    page: Union[int, None] = 1,
+    limit: Union[int, None] = 10,
     ):
     try:
+        skips = (page - 1) * limit
+        optionals = {
+            "limit": limit,
+            "skip": skips,
+            "page": page,
+        }
         q =  {}
         pushlish_query = {}
         if published_before:
@@ -37,8 +43,7 @@ async def search_videos(request: Request,
             q["title"] = title
         if description:
             q["description"] = description
-        print(q)
-        response_arr = query_videos(q)
-        return ResponseModel(response_arr, {})
+        response_arr, metadata = query_videos(q, optionals)
+        return ResponseModel(response_arr, metadata )
     except Exception as e:
         return ErrorResponseModel(str(e))

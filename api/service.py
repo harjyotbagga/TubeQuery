@@ -4,14 +4,25 @@ from ops import *
 from utils import timestamp_to_string, string_to_timestamp
 from utils import *
 
-def query_videos(filters: dict):
+def query_videos(filters: dict, optionals: dict = {}):
     db_instance = database.get_mongo_client()["TubeQuery"]
     video_collection = db_instance["VideoItems"]
     try:
-        video_items = video_collection.find(filters).sort("published_at", -1)
+        total_counts = video_collection.count_documents(filters)
+        video_items = video_collection.find(filters).sort("published_at", -1).limit(optionals.get("limit", 10)).skip(optionals.get("skip", 0))
         video_items = RemoveObjectIdFromMongoObjectArray(video_items)
-        # print(video_items)
-        return video_items
+        if (optionals.get("page", 1) * optionals.get("limit", 10)) >= total_counts:
+            next_page = None
+        else:
+            next_page = optionals.get("page", 1) + 1
+        metadata = {
+            "total_counts": total_counts,
+            "result_counts": len(video_items),
+            "next_page": next_page,
+            "limit": optionals.get("limit", 10),
+        }
+        
+        return video_items, metadata
     except Exception as e:
         raise e
     
