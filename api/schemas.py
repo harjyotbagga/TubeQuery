@@ -1,6 +1,7 @@
 from importlib.metadata import metadata
 from pydantic import BaseModel
 from typing import Union
+from datetime import datetime
 
 
 ##############################
@@ -22,3 +23,11 @@ class SearchVideosParams(BaseModel):
     published_after: Union[str, None] = None
     page: Union[int, None] = None
     per_page: Union[int, None] = None
+
+class APIKey(BaseModel):
+    key: str
+    daily_quota: int
+    requests_left: Union[int, None] = None
+    created_timestamp: Union[datetime, None] = None
+    first_used_timestamp: Union[datetime, None] = None
+    last_used_timestamp: Union[datetime, None] = None

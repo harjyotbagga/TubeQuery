@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Request, Depends
+from pytz import utc
 from response import *
 from service import *
 from typing import Union
+from schemas import APIKey
 
 app = FastAPI()
 
@@ -47,6 +49,39 @@ async def search_videos(request: Request,
         if tags:
             q["tags"] = tags
         response_arr, metadata = query_videos(q, optionals)
-        return ResponseModel(response_arr, metadata )
+        return ResponseModel(response_arr, metadata)
     except Exception as e:
         return ErrorResponseModel(str(e))
+
+
+@app.get("/keys")
+async def search_api_keys(request: Request,
+    key: str = None,
+    limit: Union[int, None] = 10,
+    page: Union[int, None] = 1,
+    ):
+    try:
+        skips = (page - 1) * limit
+        optionals = {
+            "limit": limit,
+            "skip": skips,
+            "page": page,
+        }
+        q = {}
+        if key:
+            q["key"] = key
+        response_arr, metadata = get_api_keys(q, optionals)
+        return ResponseModel(response_arr, metadata)
+    except Exception as e:
+        return ErrorResponseModel(str(e))
+
+@app.post("/keys")
+async def add_api_keys(request: Request,
+    NewAPIKey: APIKey,
+    ):
+    try:
+        key = create_api_key(NewAPIKey)
+        return ResponseModel(key, {"success": True})
+    except Exception as e:
+        return ErrorResponseModel(str(e))
+
