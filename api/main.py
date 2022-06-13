@@ -85,3 +85,35 @@ async def add_api_keys(request: Request,
     except Exception as e:
         return ErrorResponseModel(str(e))
 
+
+@app.get("/tags")
+async def search_tags(request: Request,
+    tag: str = None,
+    limit: Union[int, None] = 10,
+    page: Union[int, None] = 1,
+    ):
+    try:
+        skips = (page - 1) * limit
+        optionals = {
+            "limit": limit,
+            "skip": skips,
+            "page": page,
+        }
+        q = {}
+        if tag:
+            q["tag"] = tag
+        response_arr, metadata = get_tags(q, optionals)
+        return ResponseModel(response_arr, metadata)
+    except Exception as e:
+        return ErrorResponseModel(str(e))
+
+@app.post("/tags")
+async def add_api_keys(request: Request,
+    NewTag: Tag,
+    ):
+    try:
+        tag = create_tag(NewTag)
+        return ResponseModel(tag, {"success": True})
+    except Exception as e:
+        return ErrorResponseModel(str(e))
+
