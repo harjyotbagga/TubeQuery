@@ -17,6 +17,7 @@ async def search_videos(request: Request,
     published_before: Union[str, None] = None,
     published_after: Union[str, None] = None,
     channel_title: Union[str, None] = None,
+    tags: Union[str, None] = None,
     page: Union[int, None] = 1,
     limit: Union[int, None] = 10,
     ):
@@ -40,9 +41,11 @@ async def search_videos(request: Request,
         if channel_title:
             q["channel_title"] = channel_title
         if title:
-            q["title"] = title
+            q["title"] = {"$regex": title, "$options": "i"}
         if description:
-            q["description"] = description
+            q["description"] = {"$regex": description, "$options": "i"}
+        if tags:
+            q["tags"] = tags
         response_arr, metadata = query_videos(q, optionals)
         return ResponseModel(response_arr, metadata )
     except Exception as e:
