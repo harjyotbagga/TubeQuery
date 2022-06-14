@@ -2,14 +2,23 @@ from fastapi import FastAPI, Request, Depends
 from pytz import utc
 from response import *
 from service import *
+from database import setup_db, load_api_keys
 from typing import Union
 from schemas import APIKey
 import logging
+import os
 
 logger = logging.getLogger("tube_api")
 logger.setLevel(logging.INFO)
 
 app = FastAPI()
+
+setup_db()
+
+LOAD_API_KEYS = os.getenv("LOAD_API_KEYS", False)
+print(LOAD_API_KEYS)
+if LOAD_API_KEYS:
+    load_api_keys()
 
 
 @app.get("/")

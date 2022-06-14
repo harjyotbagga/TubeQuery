@@ -1,0 +1,114 @@
+version: '3.7'
+
+services:
+  api:
+    container_name: api
+    build:
+      context: api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api/:/usr/src/app/
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    restart: on-failure
+    networks:
+      - internal
+
+  db:
+    container_name: db
+    image: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - internal
+
+  flower:
+    container_name: flower
+    image: mher/flower
+    env_file:
+      - .env
+    command: sh -c "celery -A worker flower --port=5566"
+    ports:
+      - 5566:5566
+    networks:
+      - fetch
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    env_file:
+      - .env
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - fetch
+
+  # redis:
+  #   container_name: redis
+  #   image: redis
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - 6379:6379
+  #   networks:
+  #     - fetch
+
+  celery_beat:
+    container_name: celery_beat
+    build:
+      context: worker
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: sh -c "sh ./run_celery_beat.sh"
+    volumes:
+      - ./worker/:/usr/src/app/
+    networks:
+      - internal
+      - fetch
+    depends_on:
+      - rabbitmq
+      - db
+
+  celery_worker:
+    container_name: celery_worker
+    build:
+      context: worker
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: sh -c "sh ./run_celery_app.sh"
+    volumes:
+      - ./worker/:/usr/src/app/
+    networks:
+      - internal
+      - fetch
+    depends_on:
+      - rabbitmq
+      - db
+
+  celery_crud:
+    container_name: celery_crud
+    build:
+      context: worker
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: sh -c "sh ./run_celery_crud.sh"
+    volumes:
+      - ./worker/:/usr/src/app/
+    networks:
+      - internal
+      - fetch
+    depends_on:
+      - rabbitmq
+      - db
+    
+networks:
+  internal:
+  fetch:
