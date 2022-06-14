@@ -4,6 +4,10 @@ from response import *
 from service import *
 from typing import Union
 from schemas import APIKey
+import logging
+
+logger = logging.getLogger("tube_api")
+logger.setLevel(logging.INFO)
 
 app = FastAPI()
 
@@ -51,6 +55,7 @@ async def search_videos(request: Request,
         response_arr, metadata = query_videos(q, optionals)
         return ResponseModel(response_arr, metadata)
     except Exception as e:
+        logger.error(e)
         return ErrorResponseModel(str(e))
 
 
@@ -73,6 +78,7 @@ async def search_api_keys(request: Request,
         response_arr, metadata = get_api_keys(q, optionals)
         return ResponseModel(response_arr, metadata)
     except Exception as e:
+        logger.error(e)
         return ErrorResponseModel(str(e))
 
 @app.post("/keys")
@@ -83,6 +89,7 @@ async def add_api_keys(request: Request,
         key = create_api_key(NewAPIKey)
         return ResponseModel(key, {"success": True})
     except Exception as e:
+        logger.error(e)
         return ErrorResponseModel(str(e))
 
 
@@ -105,6 +112,7 @@ async def search_tags(request: Request,
         response_arr, metadata = get_tags(q, optionals)
         return ResponseModel(response_arr, metadata)
     except Exception as e:
+        logger.error(e)
         return ErrorResponseModel(str(e))
 
 @app.post("/tags")
@@ -115,5 +123,6 @@ async def add_api_keys(request: Request,
         tag = create_tag(NewTag)
         return ResponseModel(tag, {"success": True})
     except Exception as e:
+        logger.error(e)
         return ErrorResponseModel(str(e))
 
