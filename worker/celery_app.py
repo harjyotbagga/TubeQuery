@@ -8,7 +8,7 @@ config = {
     'task_routes': {
         'tube_query_celery': {'queue': 'tube_query_celery'},
         'tube_crud_celery': {'queue': 'tube_crud_celery'},
-    }
+    },
     # 'enable_utc': True,
 }
 

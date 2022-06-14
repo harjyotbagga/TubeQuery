@@ -42,7 +42,7 @@ def add_videos_to_db(video_items):
         res = video_collection.bulk_write(requests)
         return "Updates Success. upserted_count=%s" % (res.upserted_count)
     except Exception as e:
-        return("add_videos_to_db: exception %s." % (str(e)))
+        raise e
 
 
 def get_active_api_key():
@@ -50,7 +50,6 @@ def get_active_api_key():
     collection = db_instance["APIKeys"]
     try:
         APIKey = collection.find_one({}, sort=[("requests_left", -1)])
-        print(APIKey)
         if not APIKey:
             raise NoActiveKeyException()
         key = APIKey["key"]

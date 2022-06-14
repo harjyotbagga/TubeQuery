@@ -1,0 +1,1 @@
+celery flower --port=5566
