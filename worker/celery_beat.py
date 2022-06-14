@@ -10,6 +10,7 @@ logger.setLevel(logging.INFO)
 
 # celery -A celery_beat beat -l info
 
+
 async def init_crons(sender):
     tags = await service.get_all_tags()
     every_seconds = 10
@@ -18,6 +19,7 @@ async def init_crons(sender):
         every_seconds,
         tasks.fetch_from_yt_api.s(tags),
     )
+
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):

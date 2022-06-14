@@ -7,6 +7,6 @@ def ResponseModel(data, metadata):
         "metadata": metadata,
     }
 
+
 def ErrorResponseModel(message):
     raise HTTPException(status_code=400, detail=message)
-

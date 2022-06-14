@@ -9,6 +9,7 @@ DATABASE_NAME = os.getenv("DB_NAME", "TubeQuery")
 
 DB_CONNECTION = None
 
+
 def get_mongo_client():
     global DB_CONNECTION, DATABASE_NAME
     if DB_CONNECTION is None:
