@@ -1,12 +1,14 @@
 from fastapi import FastAPI, Request, Depends
-from pytz import utc
+from cache import *
 from response import *
 from service import *
 from database import setup_db, load_api_keys
 from typing import Union
 from schemas import APIKey
+from utils import stringify_datetime_in_obj
 import logging
 import os
+import json
 
 logger = logging.getLogger("tube_api")
 logger.setLevel(logging.INFO)
@@ -14,9 +16,9 @@ logger.setLevel(logging.INFO)
 app = FastAPI()
 
 setup_db()
+client = redis_connect()
 
 LOAD_API_KEYS = os.getenv("LOAD_API_KEYS", False)
-print(LOAD_API_KEYS)
 if LOAD_API_KEYS:
     load_api_keys()
 
@@ -64,6 +66,39 @@ async def search_videos(
         if tags:
             q["tags"] = tags
         response_arr, metadata = query_videos(q, optionals)
+        return ResponseModel(response_arr, metadata)
+    except Exception as e:
+        logger.error(e)
+        return ErrorResponseModel(str(e))
+
+
+@app.get("/video/search/tags")
+async def search_videos_by_tags(
+    request: Request,
+    tags: Union[str, None] = None,
+    page: Union[int, None] = 1,
+    limit: Union[int, None] = 10,
+):
+    try:
+        skips = (page - 1) * limit
+        optionals = {
+            "limit": limit,
+            "skip": skips,
+            "page": page,
+        }
+        q = {}
+        if tags:
+            q["tags"] = tags
+        data = get_tag_results_from_cache(tags)
+        if data is not None:
+            data_metadata = get_tag_results_from_cache(f"${tags}_metadata")
+            if data_metadata is not None:
+                return ResponseModel(json.loads(data), json.loads(data_metadata))
+        response_arr, metadata = query_videos(q, optionals)
+        set_tag_results_to_cache(
+            tags, json.dumps(stringify_datetime_in_obj(response_arr))
+        )
+        set_tag_results_to_cache(f"${tags}_metadata", json.dumps(metadata))
         return ResponseModel(response_arr, metadata)
     except Exception as e:
         logger.error(e)
