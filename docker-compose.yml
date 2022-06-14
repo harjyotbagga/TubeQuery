@@ -76,6 +76,7 @@ services:
       - fetch
     depends_on:
       - rabbitmq
+      - redis
       - db
       - api
 
