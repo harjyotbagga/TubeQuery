@@ -16,6 +16,7 @@ click==8.1.3
 click-didyoumean==0.3.0
 click-plugins==1.1.1
 click-repl==0.2.0
+Deprecated==1.2.13
 distlib==0.3.4
 fastapi==0.78.0
 filelock==3.7.1
@@ -29,6 +30,7 @@ kombu==5.2.4
 multidict==6.0.2
 mypy-extensions==0.4.3
 nodeenv==1.6.0
+packaging==21.3
 pathspec==0.9.0
 platformdirs==2.5.2
 pre-commit==2.19.0
@@ -38,8 +40,10 @@ pyasn1==0.4.8
 pycparser==2.21
 pydantic==1.9.1
 pymongo==4.1.1
+pyparsing==3.0.9
 pytz==2022.1
 PyYAML==6.0
+redis==4.3.3
 requests==2.28.0
 simple-chalk==0.1.0
 six==1.16.0
@@ -55,4 +59,5 @@ vine==5.0.0
 virtualenv==20.14.1
 watchdog==2.1.9
 wcwidth==0.2.5
+wrapt==1.14.1
 yarl==1.7.2

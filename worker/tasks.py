@@ -18,6 +18,15 @@ def fetch_from_yt_api(pageToken=None):
         logger.info("No tags added yet, skipping cron initialization")
         return
     except Exception as e:
+        service.log_failed_requests(
+            "fetch_from_yt_api",
+            "Could not get tags",
+            str(e),
+            datetime.datetime.now(),
+            {},
+            None,
+            None,
+        )
         logger.error("fetch_from_yt_api: ERROR: " + str(e))
         return
 
@@ -25,15 +34,20 @@ def fetch_from_yt_api(pageToken=None):
         key = service.get_active_api_key()
     except Exception as e:
         logger.error("fetch_from_yt_api: ERROR: " + str(e))
-        # TODO: Move to Fail Safe Queue
+        service.log_failed_requests(
+            "fetch_from_yt_api",
+            "No Active API Key",
+            str(e),
+            datetime.datetime.now(),
+            {"tags": tags},
+            None,
+            None,
+        )
         return
 
     url = "https://youtube.googleapis.com/youtube/v3/search"
     publishBeforeTime = datetime.datetime.now()
     publishAfterTime = publishBeforeTime + datetime.timedelta(seconds=-(2 * 10))
-
-    # DEV: Delete Later
-    # publishAfterTime = datetime.datetime(2022,6,14,12,0,0)
 
     querystring = {
         "part": "snippet",
@@ -50,13 +64,24 @@ def fetch_from_yt_api(pageToken=None):
 
     response = requests.request("GET", url, params=querystring)
     if response.status_code != 200:
-        logger.error("Error: " + str(response.status_code))
-        # TODO: Move to Fail Safe Queue
+        logger.error(
+            "Error: Non 200 Status Code Response. Response Status Code: "
+            + str(response.status_code)
+        )
+        service.log_failed_requests(
+            "fetch_from_yt_api",
+            "API Keys Exhausted",
+            "Non 200 Status Response",
+            datetime.datetime.now(),
+            querystring,
+            response.status_code,
+            response.json(),
+        )
         return
 
     resp = response.json()
 
-    # DEV: Remove Later
+    # DEV: Return Sample Response from json file
     # with open("./sample_resp.json") as f:
     #     resp = json.load(f)
 
@@ -79,5 +104,13 @@ def write_to_db(video_items):
         logger.info(msg)
     except Exception as e:
         logger.error("write_to_db: ERROR: " + str(e))
-        # TODO: Move to Fail Safe Queue
+        service.log_failed_requests(
+            "write_to_db",
+            "DB Write Failed",
+            str(e),
+            datetime.datetime.now(),
+            {"video_items": video_items},
+            None,
+            None,
+        )
     return
