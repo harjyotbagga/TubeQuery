@@ -5,3 +5,6 @@ __pycache__
 
 celerybeat-schedule
 sample_resp.json
+.vscode/
+.DS_Store
+.idea/
