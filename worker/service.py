@@ -84,3 +84,30 @@ def use_api_key(key: str):
         )
     except Exception as e:
         raise e
+
+
+def log_failed_requests(
+    task_name,
+    error_type,
+    error_message,
+    timestamp,
+    request_metdata,
+    response_code,
+    response_body,
+):
+    db_instance = database.get_mongo_client()[DATABASE_NAME]
+    collection = db_instance["FailedRequests"]
+    try:
+        collection.insert_one(
+            {
+                "task_name": task_name,
+                "error_type": error_type,
+                "error_message": error_message,
+                "timestamp": timestamp,
+                "request_metdata": request_metdata,
+                "response_code": response_code,
+                "response_body": response_body,
+            }
+        )
+    except Exception as e:
+        raise e
