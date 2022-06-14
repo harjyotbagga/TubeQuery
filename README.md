@@ -23,7 +23,7 @@ Microservices to pull the latest video information from YouTube and query them.
 
 ## Documentation
 
-Postman Documentation: [Click Here.](https://documenter.getpostman.com/view/6334156/UzBiNU3S#c5623284-4644-40a3-b15d-aa637cd59fdc)
+Postman Documentation: [Click Here.](https://documenter.getpostman.com/view/6334156/UzBiNU3S)
 
 ## Installation & Setup
 
