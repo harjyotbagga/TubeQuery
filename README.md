@@ -51,3 +51,4 @@ Step 3: Run the ```docker-compose up --build``` command to build and run the doc
 - [ ] Frontend dashboard for the API.
 - [ ] Centralized logging and visualization dashboard.
 - [ ] Failsafe worker to handle failed requests.
+- [ ] Writing a test-suite for the application.
