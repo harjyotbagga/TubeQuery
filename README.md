@@ -1,6 +1,25 @@
 # TubeQuery
 
-Microservices to pull the latest videos from YouTube and Query them.
+Microservices to pull the latest video information from YouTube and query them.
+
+## System Architecture
+
+![System Architecture](.github/system_architecture.png)
+
+## Features Included
+
+- [x] Built Worker to fetch YouTube Video Information periodically (every 10 seconds).
+- [x] API to query Video information stored in the database.
+- [x] Pagination Incorporated.
+- [x] Databases Indexed for faster querying.
+- [x] Basic search query for Title and Description incorporated.
+- [x] Dockerized for easy deployment.
+- [x] Built keeping optimization and scalability in mind.
+- [x] Added support for multiple API Keys.
+- [x] Search query optimization to search videos by tags.
+- [x] Code Standardization through linting.
+- [x] Storing failed requests and tasks for further investigation and action.
+- [x] Request Caching in API.
 
 ## Documentation
 
@@ -26,3 +45,9 @@ Step 3: Run the ```docker-compose up --build``` command to build and run the doc
 6. CeleryBeat: A periodic celery beat to call the celery workers to run the tasks.
 7. CeleryWorker: The celery queue that monitors workers that calls the youtube api.
 8. CeleryCRUD: The celery queue that monitors workers that store the fetched information in the database.
+
+### Future Scopes
+
+- [ ] Frontend dashboard for the API.
+- [ ] Centralized logging and visualization dashboard.
+- [ ] Failsafe worker to handle failed requests.
