@@ -1,15 +1,26 @@
 import logging
 import requests
 import datetime
+import json
 from celery_app import app
 import service
+from exceptions import NoTagsException
 
 logger = logging.getLogger("tube_beat")
 logger.setLevel(logging.INFO)
 
 # Called via dynamic function call, from celery beat
 @app.task(name="fetch_from_yt_api")
-def fetch_from_yt_api(tags, pageToken=None):
+def fetch_from_yt_api(pageToken=None):
+    try:
+        tags = service.get_all_tags()
+    except NoTagsException:
+        logger.info("No tags added yet, skipping cron initialization")
+        return
+    except Exception as e:
+        logger.error("fetch_from_yt_api: ERROR: " + str(e))
+        return
+
     try:
         key = service.get_active_api_key()
     except Exception as e:
@@ -18,11 +29,11 @@ def fetch_from_yt_api(tags, pageToken=None):
         return
 
     url = "https://youtube.googleapis.com/youtube/v3/search"
-    publishAfterTime = datetime.datetime.now()
-    publishBeforeTime = publishAfterTime + datetime.timedelta(seconds=10)
-    # DEV: Remove later
-    publishAfterTime = datetime.datetime(2022, 6, 14, 0, 0, 0)
     publishBeforeTime = datetime.datetime.now()
+    publishAfterTime = publishBeforeTime + datetime.timedelta(seconds=-(2 * 10))
+
+    # DEV: Delete Later
+    # publishAfterTime = datetime.datetime(2022,6,14,12,0,0)
 
     querystring = {
         "part": "snippet",
@@ -44,11 +55,19 @@ def fetch_from_yt_api(tags, pageToken=None):
         return
 
     resp = response.json()
-    if resp.get("pageInfo", {}).get("totalResults") == 0:
-        return
+
+    # DEV: Remove Later
+    # with open("./sample_resp.json") as f:
+    #     resp = json.load(f)
+
+    # if resp.get("pageInfo", {}).get("totalResults") == 0:
+    #     logger.info("fetch_from_yt_api: 0 videos found")
+    #     return
+
     if resp.get("nextPageToken") is not None:
-        fetch_from_yt_api.delay(tags, resp.get("nextPageToken"))
+        fetch_from_yt_api.delay(resp.get("nextPageToken"))
     video_items = resp.get("items")
+    logger.info("fetch_from_yt_api: " + str(len(video_items)) + " videos found")
     app.send_task("write_to_db", args=[video_items], queue="tube_crud_celery")
 
 

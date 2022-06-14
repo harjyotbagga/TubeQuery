@@ -1,8 +1,7 @@
 import asyncio
 import logging
-import queue
-from simple_chalk import chalk
-import tasks, service
+import tasks
+import time
 from celery_app import app
 
 logger = logging.getLogger("tube_beat")
@@ -12,12 +11,11 @@ logger.setLevel(logging.INFO)
 
 
 async def init_crons(sender):
-    tags = await service.get_all_tags()
     every_seconds = 10
-
+    # time.sleep(5)
     sender.add_periodic_task(
         every_seconds,
-        tasks.fetch_from_yt_api.s(tags),
+        tasks.fetch_from_yt_api.s(pageToken=None),
     )
 
 

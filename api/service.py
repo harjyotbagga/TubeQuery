@@ -3,9 +3,11 @@ from schemas import *
 from database import *
 from utils import *
 
+DATABASE_NAME = os.getenv("DB_NAME", "TubeQuery")
+
 
 def query_videos(filters: dict, optionals: dict = {}):
-    db_instance = get_mongo_client()["TubeQuery"]
+    db_instance = get_mongo_client()[DATABASE_NAME]
     collection = db_instance["VideoItems"]
     try:
         match_filters = filters
@@ -59,7 +61,7 @@ def query_videos(filters: dict, optionals: dict = {}):
 
 
 def get_api_keys(filters: dict, optionals: dict = {}):
-    db_instance = get_mongo_client()["TubeQuery"]
+    db_instance = get_mongo_client()[DATABASE_NAME]
     collection = db_instance["APIKeys"]
     try:
         skip = optionals.get("skip", 0)
@@ -103,13 +105,13 @@ def get_api_keys(filters: dict, optionals: dict = {}):
 
 
 def create_api_key(NewAPIKey: APIKey):
-    db_instance = get_mongo_client()["TubeQuery"]
+    db_instance = get_mongo_client()[DATABASE_NAME]
     collection = db_instance["APIKeys"]
     try:
         NewAPIKey.created_at = datetime.datetime.now()
         NewAPIKey.requests_left = NewAPIKey.daily_quota
         collection.update_one(
-            {"key": NewAPIKey.key}, {"$set": NewAPIKey.dict()}, upsert=True
+            {"key": NewAPIKey.key}, {"$setOnInsert": NewAPIKey.dict()}, upsert=True
         )
         return NewAPIKey
     except Exception as e:
@@ -117,7 +119,7 @@ def create_api_key(NewAPIKey: APIKey):
 
 
 def get_tags(filters: dict, optionals: dict = {}):
-    db_instance = get_mongo_client()["TubeQuery"]
+    db_instance = get_mongo_client()[DATABASE_NAME]
     collection = db_instance["Tags"]
     try:
         skip = optionals.get("skip", 0)
@@ -161,7 +163,7 @@ def get_tags(filters: dict, optionals: dict = {}):
 
 
 def create_tag(NewTag: Tag):
-    db_instance = get_mongo_client()["TubeQuery"]
+    db_instance = get_mongo_client()[DATABASE_NAME]
     collection = db_instance["Tags"]
     try:
         NewTag.created_at = datetime.datetime.now()

@@ -1,12 +1,13 @@
 import database, utils, models
+from database import DATABASE_NAME
 from datetime import datetime
 from pymongo import UpdateOne, InsertOne, UpdateMany
 from exceptions import NoActiveKeyException, NoTagsException
 from models import QUERY_DEDUCTION
 
 
-async def get_all_tags():
-    db_instance = database.get_mongo_client()["TubeQuery"]
+def get_all_tags():
+    db_instance = database.get_mongo_client()[DATABASE_NAME]
     collection = db_instance["Tags"]
     try:
         tag_response = list(collection.find({"enable": True}))
@@ -19,7 +20,7 @@ async def get_all_tags():
 
 
 def add_videos_to_db(video_items):
-    db_instance = database.get_mongo_client()["TubeQuery"]
+    db_instance = database.get_mongo_client()[DATABASE_NAME]
     video_collection = db_instance["VideoItems"]
     requests = []
     for video_item in video_items:
@@ -31,6 +32,7 @@ def add_videos_to_db(video_items):
             "published_at": utils.string_to_timestamp(
                 video_item["snippet"]["publishedAt"]
             ),
+            "added_at": datetime.now(),
             "title": video_item["snippet"]["title"],
             "description": video_item["snippet"]["description"],
             "thumbnail_url": video_item["snippet"]["thumbnails"]["default"]["url"],
@@ -42,7 +44,7 @@ def add_videos_to_db(video_items):
                     "video_id": video_item_insert["video_id"],
                     "channel_id": video_item_insert["channel_id"],
                 },
-                {"$set": video_item_insert},
+                {"$setOnInsert": video_item_insert},
                 upsert=True,
             )
         )
@@ -56,7 +58,7 @@ def add_videos_to_db(video_items):
 
 
 def get_active_api_key():
-    db_instance = database.get_mongo_client()["TubeQuery"]
+    db_instance = database.get_mongo_client()[DATABASE_NAME]
     collection = db_instance["APIKeys"]
     try:
         APIKey = collection.find_one({}, sort=[("requests_left", -1)])
@@ -70,7 +72,7 @@ def get_active_api_key():
 
 
 def use_api_key(key: str):
-    db_instance = database.get_mongo_client()["TubeQuery"]
+    db_instance = database.get_mongo_client()[DATABASE_NAME]
     collection = db_instance["APIKeys"]
     try:
         collection.update_one(
