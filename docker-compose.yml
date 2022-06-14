@@ -29,12 +29,16 @@ services:
 
   flower:
     container_name: flower
-    image: mher/flower
+    build: ./worker
     env_file:
       - .env
-    command: sh -c "celery -A worker flower --port=5566"
+    volumes:
+      - ./worker/:/usr/src/app/
+    working_dir: /usr/src/app/
+    restart: on-failure
+    command: sh -c "celery -A tasks flower"
     ports:
-      - 5566:5566
+      - 5555:5555
     networks:
       - fetch
     depends_on:
