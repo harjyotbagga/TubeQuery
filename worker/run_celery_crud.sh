@@ -1,0 +1,1 @@
+celery -A tasks worker -l info -Q tube_crud_celery -c 2

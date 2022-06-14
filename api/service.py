@@ -3,6 +3,7 @@ from schemas import *
 from database import *
 from utils import *
 
+
 def query_videos(filters: dict, optionals: dict = {}):
     db_instance = get_mongo_client()["TubeQuery"]
     collection = db_instance["VideoItems"]
@@ -26,24 +27,22 @@ def query_videos(filters: dict, optionals: dict = {}):
             match_filters["$text"] = {"$search": text_tags}
         if match_filters:
             pipeline.append({"$match": match_filters})
-        
+
         pipeline += [
             {"$project": project},
             {"$sort": {"published_at": -1}},
         ]
         pipeline.append({"$skip": skip})
-        pipeline.append({"$facet": {
-            'data': [{'$limit': limit}],
-            'total': [{'$count': 'count'}]
-            }
-        })
+        pipeline.append(
+            {"$facet": {"data": [{"$limit": limit}], "total": [{"$count": "count"}]}}
+        )
         pipeline_result = list(collection.aggregate(pipeline))
-        result = pipeline_result[0]['data']
+        result = pipeline_result[0]["data"]
         if len(result) == 0:
             total_counts = 0
         else:
-            total_counts = pipeline_result[0]['total'][0]['count'] + skip
-        
+            total_counts = pipeline_result[0]["total"][0]["count"] + skip
+
         if (page * limit) >= total_counts:
             next_page = None
         else:
@@ -57,6 +56,7 @@ def query_videos(filters: dict, optionals: dict = {}):
         return result, metadata
     except Exception as e:
         raise e
+
 
 def get_api_keys(filters: dict, optionals: dict = {}):
     db_instance = get_mongo_client()["TubeQuery"]
@@ -76,19 +76,17 @@ def get_api_keys(filters: dict, optionals: dict = {}):
             {"$sort": {"created_at": -1}},
         ]
         pipeline.append({"$skip": skip})
-        pipeline.append({"$facet": {
-            'data': [{'$limit': limit}],
-            'total': [{'$count': 'count'}]
-            }
-        })
+        pipeline.append(
+            {"$facet": {"data": [{"$limit": limit}], "total": [{"$count": "count"}]}}
+        )
         pipeline_result = list(collection.aggregate(pipeline))
-        result = pipeline_result[0]['data']
+        result = pipeline_result[0]["data"]
 
         if len(result) == 0:
             total_counts = 0
         else:
-            total_counts = pipeline_result[0]['total'][0]['count'] + skip
-            
+            total_counts = pipeline_result[0]["total"][0]["count"] + skip
+
         if (page * limit) >= total_counts:
             next_page = None
         else:
@@ -102,17 +100,21 @@ def get_api_keys(filters: dict, optionals: dict = {}):
         return result, metadata
     except Exception as e:
         raise e
-    
+
+
 def create_api_key(NewAPIKey: APIKey):
     db_instance = get_mongo_client()["TubeQuery"]
     collection = db_instance["APIKeys"]
     try:
         NewAPIKey.created_at = datetime.datetime.now()
         NewAPIKey.requests_left = NewAPIKey.daily_quota
-        collection.update_one({"key": NewAPIKey.key}, {"$set": NewAPIKey.dict()}, upsert=True)
+        collection.update_one(
+            {"key": NewAPIKey.key}, {"$set": NewAPIKey.dict()}, upsert=True
+        )
         return NewAPIKey
     except Exception as e:
         raise e
+
 
 def get_tags(filters: dict, optionals: dict = {}):
     db_instance = get_mongo_client()["TubeQuery"]
@@ -132,19 +134,17 @@ def get_tags(filters: dict, optionals: dict = {}):
             {"$sort": {"created_at": -1}},
         ]
         pipeline.append({"$skip": skip})
-        pipeline.append({"$facet": {
-            'data': [{'$limit': limit}],
-            'total': [{'$count': 'count'}]
-            }
-        })
+        pipeline.append(
+            {"$facet": {"data": [{"$limit": limit}], "total": [{"$count": "count"}]}}
+        )
         pipeline_result = list(collection.aggregate(pipeline))
-        result = pipeline_result[0]['data']
+        result = pipeline_result[0]["data"]
 
         if len(result) == 0:
             total_counts = 0
         else:
-            total_counts = pipeline_result[0]['total'][0]['count'] + skip
-            
+            total_counts = pipeline_result[0]["total"][0]["count"] + skip
+
         if (page * limit) >= total_counts:
             next_page = None
         else:
@@ -158,7 +158,8 @@ def get_tags(filters: dict, optionals: dict = {}):
         return result, metadata
     except Exception as e:
         raise e
-    
+
+
 def create_tag(NewTag: Tag):
     db_instance = get_mongo_client()["TubeQuery"]
     collection = db_instance["Tags"]
