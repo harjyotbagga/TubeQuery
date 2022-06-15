@@ -9,6 +9,7 @@ from models import QUERY_DEDUCTION
 
 FAILED_TASKS_API_HOST = os.getenv("FAILED_TASKS_API_HOST", "127.0.0.1")
 FAILED_TASKS_API_PORT = os.getenv("FAILED_TASKS_API_PORT", "8080")
+FAIL_QUEUE_ENABLED = os.getenv("FAIL_QUEUE_ENABLED", 0)
 
 
 def get_all_tags():
@@ -116,7 +117,8 @@ def log_failed_requests(
                 "resolved": False,
             }
         )
-        send_requests_to_failed_queue(str(task_id.inserted_id))
+        if FAIL_QUEUE_ENABLED:
+            send_requests_to_failed_queue(str(task_id.inserted_id))
     except Exception as e:
         logger.error("Failed to log failed request: %s" % e)
 
