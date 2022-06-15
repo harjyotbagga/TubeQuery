@@ -20,6 +20,7 @@ Microservices to pull the latest video information from YouTube and query them.
 - [x] Code Standardization through linting.
 - [x] Storing failed requests and tasks for further investigation and action.
 - [x] Request Caching in API.
+- [x] Failsafe worker to handle and retry failed requests.
 
 ## Documentation
 
@@ -29,9 +30,9 @@ Postman Documentation: [Click Here.](https://documenter.getpostman.com/view/6334
 
 Please make sure you have docker installed in your system.  
 
-Step 1: Create a ```.env``` file in the root directory of the project. Populate it with the environment variables. You can find the environment variables in the ```.env.example``` file. Or you can just copy that for now.
+Step 1: Create a ```.env``` file in the root directory of the project. Populate it with the environment variables. You can find the environment variables in the ```.env.example``` file. Or you can just copy that for now. To enable the Fail Safe Queue (a module to retry failed requests), create a file called ```.env_fq``` in the root directory of the project. Populate it with the environment variables. Or you can just copy the ```.env_fq.example``` file for now.
 
-Step 2: If you do not want to load the YouTube API Keys via the API, and want to load it right away, create a ```api_keys.txt``` file in the api directory. Populate it with the API Keys and make sure you make the ```LOAD_API_KEYS``` environment variable to ```True```.
+Step 2: If you do not want to load the YouTube API Keys via the API, and want to load it right away, create a ```api_keys.txt``` file in the api directory. Populate it with the API Keys and make sure you make the ```LOAD_API_KEYS``` environment variable to ```1```.
 
 Step 3: Run the ```docker-compose up --build``` command to build and run the docker containers. Once the services are up and running, you will now be able to access the API at ```localhost:8000```.
 
@@ -45,10 +46,12 @@ Step 3: Run the ```docker-compose up --build``` command to build and run the doc
 6. CeleryBeat: A periodic celery beat to call the celery workers to run the tasks.
 7. CeleryWorker: The celery queue that monitors workers that calls the youtube api.
 8. CeleryCRUD: The celery queue that monitors workers that store the fetched information in the database.
+9. FailQueueAPI: The API that manages the failed requests and sends it the FailQueueWorker to retry it.
+10. FailQueueWorker: The celery queue that collects the failed requests and attempts to retry it.
+11. FailQueueRabbitMQ: Another broker to manage the failed requests. Purposefully kept seperate than the RabbitMQ service to avoid a single point failiure.
 
 ### Future Scopes
 
 - [ ] Frontend dashboard for the API.
 - [ ] Centralized logging and visualization dashboard.
-- [ ] Failsafe worker to handle failed requests.
 - [ ] Writing a test-suite for the application.

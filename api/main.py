@@ -19,7 +19,7 @@ setup_db()
 client = redis_connect()
 
 LOAD_API_KEYS = os.getenv("LOAD_API_KEYS", False)
-if LOAD_API_KEYS:
+if LOAD_API_KEYS == 1:
     load_api_keys()
 
 

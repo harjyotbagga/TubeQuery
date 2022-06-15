@@ -8,3 +8,4 @@ sample_resp.json
 .vscode/
 .DS_Store
 .idea/
+.env_fq

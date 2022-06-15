@@ -1,14 +1,36 @@
-from asyncio.log import logger
-import os, requests
-import database, utils, models
+from database import *
+from bson.objectid import ObjectId
+import logging
+import database, utils
 from database import DATABASE_NAME
 from datetime import datetime
 from pymongo import UpdateOne, InsertOne, UpdateMany
 from exceptions import NoActiveKeyException, NoTagsException
 from models import QUERY_DEDUCTION
 
-FAILED_TASKS_API_HOST = os.getenv("FAILED_TASKS_API_HOST", "127.0.0.1")
-FAILED_TASKS_API_PORT = os.getenv("FAILED_TASKS_API_PORT", "8080")
+logger = logging.getLogger("failed_task_crud")
+logger.setLevel(logging.INFO)
+
+
+def get_failed_task(task_id):
+    client = get_mongo_client()
+    db = client[DATABASE_NAME]
+    collection = db["FailedRequests"]
+    failed_task = collection.find_one({"_id": ObjectId(task_id)})
+    return failed_task
+
+
+def update_task_status(task_id, status):
+    db_instance = database.get_mongo_client()[DATABASE_NAME]
+    collection = db_instance["FailedRequests"]
+    try:
+        collection.update_one(
+            {"_id": ObjectId(task_id)},
+            {"$set": {"retry_attempt": True, "resolved": status}},
+        )
+        logger.info("Task %s updated to status %s" % (task_id, status))
+    except Exception as e:
+        raise e
 
 
 def get_all_tags():
@@ -103,7 +125,7 @@ def log_failed_requests(
     db_instance = database.get_mongo_client()[DATABASE_NAME]
     collection = db_instance["FailedRequests"]
     try:
-        task_id = collection.insert_one(
+        collection.insert_one(
             {
                 "task_name": task_name,
                 "error_type": error_type,
@@ -116,19 +138,5 @@ def log_failed_requests(
                 "resolved": False,
             }
         )
-        send_requests_to_failed_queue(str(task_id.inserted_id))
     except Exception as e:
-        logger.error("Failed to log failed request: %s" % e)
-
-
-def send_requests_to_failed_queue(task_id):
-    FAILED_TASKS_API_URL = (
-        f"http://{FAILED_TASKS_API_HOST}:{FAILED_TASKS_API_PORT}/tasks"
-    )
-    print(FAILED_TASKS_API_URL)
-    payload = {
-        "task_id": task_id,
-    }
-    response = requests.request("POST", FAILED_TASKS_API_URL, json=payload)
-    if response.status_code != 200:
-        raise Exception("Failed to send request to failed queue")
+        raise e
