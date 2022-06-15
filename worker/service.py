@@ -9,7 +9,7 @@ from models import QUERY_DEDUCTION
 
 FAILED_TASKS_API_HOST = os.getenv("FAILED_TASKS_API_HOST", "127.0.0.1")
 FAILED_TASKS_API_PORT = os.getenv("FAILED_TASKS_API_PORT", "8080")
-FAIL_QUEUE_ENABLED = os.getenv("FAIL_QUEUE", 0)
+FAIL_QUEUE_ENABLED = os.getenv("FAIL_QUEUE_ENABLED", 0)
 
 
 def get_all_tags():
