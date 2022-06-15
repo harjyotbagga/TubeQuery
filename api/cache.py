@@ -4,8 +4,8 @@ import sys
 import os
 from datetime import datetime, timedelta
 
-log = logging.getLogger("tube_api")
-log.setLevel(logging.INFO)
+logger = logging.getLogger("tube_api")
+logger.setLevel(logging.INFO)
 
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
@@ -24,7 +24,7 @@ def redis_connect() -> redis.client.Redis:
         if ping is True:
             return client
     except redis.AuthenticationError as e:
-        log.error("Redis AuthenticationError: " + str(e))
+        logger.error("Redis AuthenticationError: " + str(e))
         sys.exit(1)
 
 

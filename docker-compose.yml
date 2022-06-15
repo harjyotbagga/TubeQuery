@@ -117,7 +117,56 @@ services:
     depends_on:
       - rabbitmq
       - db
+
+  fail_queue_api:
+    container_name: fail_queue_api
+    build:
+      context: fail_queue
+      dockerfile: Dockerfile
+    env_file:
+      - .env_fq
+    ports:
+      - 8080:8080
+    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 8080"
+    volumes:
+      - ./fail_queue/:/usr/src/app/
+    networks:
+      - internal
+      - fail_nw
+    depends_on:
+      - fail_queue_rabbitmq
+      - db
+
+  fail_queue_worker:
+    container_name: fail_queue_worker
+    build:
+      context: fail_queue
+      dockerfile: Dockerfile
+    env_file:
+      - .env_fq
+    command: sh -c "sh ./run_celery.sh"
+    volumes:
+      - ./fail_queue/:/usr/src/app/
+    networks:
+      - fail_nw
+      - internal
+    depends_on:
+      - db
+      - fail_queue_rabbitmq
+      - fail_queue_api
     
+  fail_queue_rabbitmq:
+    container_name: fail_queue_rabbitmq
+    image: rabbitmq:3-management
+    env_file:
+      - .env_fq
+    ports:
+      - 5673:5672
+      - 15673:15672
+    networks:
+      - fail_nw
+
 networks:
   internal:
   fetch:
+  fail_nw:
