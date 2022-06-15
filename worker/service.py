@@ -107,6 +107,8 @@ def log_failed_requests(
                 "request_metdata": request_metdata,
                 "response_code": response_code,
                 "response_body": response_body,
+                "retry_attempt": False,
+                "resolved": False,
             }
         )
     except Exception as e:

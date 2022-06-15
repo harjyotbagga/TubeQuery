@@ -85,9 +85,9 @@ def fetch_from_yt_api(pageToken=None):
     # with open("./sample_resp.json") as f:
     #     resp = json.load(f)
 
-    # if resp.get("pageInfo", {}).get("totalResults") == 0:
-    #     logger.info("fetch_from_yt_api: 0 videos found")
-    #     return
+    if resp.get("pageInfo", {}).get("totalResults") == 0:
+        logger.info("fetch_from_yt_api: 0 videos found")
+        return
 
     if resp.get("nextPageToken") is not None:
         fetch_from_yt_api.delay(resp.get("nextPageToken"))
