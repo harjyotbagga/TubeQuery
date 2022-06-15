@@ -20,7 +20,7 @@ Microservices to pull the latest video information from YouTube and query them.
 - [x] Code Standardization through linting.
 - [x] Storing failed requests and tasks for further investigation and action.
 - [x] Request Caching in API.
-- [x] Failsafe worker to handle and retry failed requests.
+- [x] Failsafe pipeline to handle and retry failed requests.
 
 ## Documentation
 
